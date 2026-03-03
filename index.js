@@ -1,6 +1,7 @@
-require("http").createServer((req,res)=>{res.end("OK")}).listen(process.env.PORT || 3000);
 const { Client, GatewayIntentBits } = require("discord.js");
 const fs = require("fs");
+
+console.log("BOT STARTED");
 
 const client = new Client({
   intents: [
@@ -9,8 +10,6 @@ const client = new Client({
     GatewayIntentBits.MessageContent
   ]
 });
-
-const TOKEN = require("./config.json").token;
 
 let data = {};
 const dataFile = "./data.json";
@@ -23,13 +22,18 @@ function save() {
   fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
 }
 
-client.modules = {};
-
-const modules = fs.readdirSync("./modules");
-
-for (let file of modules) {
-  const module = require(`./modules/${file}`);
-  module(client, data, save);
+function loadModules() {
+  const modules = fs.readdirSync("./modules");
+  for (const file of modules) {
+    require(`./modules/${file}`)(client, data, save);
+  }
 }
 
-client.login(TOKEN);
+loadModules();
+
+client.once("ready", () => {
+  console.log("LOGGED IN AS", client.user.tag);
+});
+
+// 🔥 TOKEN BURADA ENV'DEN GELİYOR
+client.login(process.env.TOKEN);
