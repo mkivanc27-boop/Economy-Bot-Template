@@ -19,7 +19,7 @@ class Client extends cln{
      */
     constructor(options){
       super(options);
-      for(let command of fs.readdirSync("./commands")){
+      for(let command of fs.readdirSync(__dirname + "/commands")
         /**
          * @type {CommandData}
          */
